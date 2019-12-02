@@ -6,9 +6,11 @@
   "author": "Gabriel Juchault <gabriel.juchault@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "answer": "ts-node"
+    "answer": "ts-node",
+    "lint": "prettier --write \"./day-*/**/*.ts\""
   },
   "devDependencies": {
+    "prettier": "1.19.1",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.2"
   },
