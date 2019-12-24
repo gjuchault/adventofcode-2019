@@ -28,36 +28,53 @@ export const buildBaker = (list: string[]) => {
   return new Baker(result)
 }
 
+export const getMinimumBaked = (wanted: number, fromReceipe: number) => {
+  let result = fromReceipe
+
+  while (result < wanted) {
+    result += fromReceipe
+  }
+
+  return result
+}
+
 export class Baker {
   waste: Map<string, number> = new Map()
+  cache: Map<string, number> = new Map()
   requirements: Map<string, Receipe> = new Map()
-  flattenTree: Map<string, number> = new Map()
 
   constructor(requirements: Map<string, Receipe>) {
     this.requirements = requirements
   }
 
-  getOreFor(item: string, quantity: number = 1): number {
+  reset() {
+    this.waste = new Map()
+    return this
+  }
+
+  getOreFor(item: string, initialQuantity: number = 1): number {
     const entry = this.requirements.get(item)
 
     if (item === 'ORE') {
-      return quantity
+      return initialQuantity
     }
 
     if (!entry) {
       throw new Error(`Invalid tree, missing ${item}`)
     }
 
+    let quantity = initialQuantity
+
     if (this.waste.has(item)) {
-      return this.bakeFromWaste(item, quantity)
+      quantity = this.bakeFromWaste(item, quantity)
     }
+
+    if (quantity === 0) return 0
 
     let result = 0
 
-    const bakedAmount = this.getMinimumBaked(quantity, entry.amount)
+    const bakedAmount = getMinimumBaked(quantity, entry.amount)
     const times = Math.floor(bakedAmount / entry.amount)
-
-    this.flattenTree.set(item, (this.flattenTree.get(item) || 0) + bakedAmount)
 
     for (const requirement of entry.requirements) {
       // We can't just do this.getOreFor * times or we wouldn't save enough in
@@ -94,19 +111,9 @@ export class Baker {
 
     // if less, we need to bake more
     if (currentlyUnused < quantity) {
-      return this.getOreFor(item, quantity - currentlyUnused)
+      return quantity - currentlyUnused
     }
 
     return 0
-  }
-
-  getMinimumBaked(wanted: number, fromReceipe: number) {
-    let result = fromReceipe
-
-    while (result < wanted) {
-      result += fromReceipe
-    }
-
-    return result
   }
 }
