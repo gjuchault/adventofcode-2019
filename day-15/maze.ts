@@ -35,12 +35,14 @@ export class Maze {
     this.map = new Map()
   }
 
-  findOxygen() {
+  breadthFirstSearch(
+    startingPath: Direction[] = [],
+    startingPos: Position = { x: 0, y: 0 },
+    startingTile: Tile = { type: TileType.Empty }
+  ) {
     // Breadth-first search
-    this.queue.push({ x: 0, y: 0 })
-    this.map.set('0,0', {
-      type: TileType.Empty
-    })
+    this.queue = [startingPos]
+    this.map = new Map([[posKey(startingPos), startingTile]])
 
     while (this.queue.length) {
       const pos = this.queue.pop()!
@@ -49,16 +51,11 @@ export class Maze {
       // 1. navigate to pos
       const engine = new Engine(this.registry)
       const routeToTile = this.buildRouteToTile(tile)
-      for (const path of routeToTile) {
+      for (const path of startingPath.concat(routeToTile)) {
         engine.processUntilOutput(BigInt(path))
       }
 
-      // 2. break condition
-      if (tile.type === TileType.OxygenSystem) {
-        return routeToTile
-      }
-
-      // 3. generate adjacent positions
+      // 2. generate adjacent positions
       const adjacents: Map<Direction, [Position, TileType]> = new Map([
         [
           Direction.North,
@@ -90,7 +87,7 @@ export class Maze {
         ]
       ])
 
-      // 4. for each adjacent tile
+      // 3. for each adjacent tile
       for (const [
         adjacentDirection,
         [adjacentPosition, adjacentTileType]
@@ -110,6 +107,17 @@ export class Maze {
         }
       }
     }
+  }
+
+  findOxygen(): [Position, Tile] {
+    for (const [pos, tile] of this.map) {
+      if (tile.type === TileType.OxygenSystem) {
+        const [x, y] = pos.split(',').map(Number)
+        return [{ x, y }, tile]
+      }
+    }
+
+    throw new Error("Couldn't find tile")
   }
 
   buildRouteToTile(tile: Tile): Direction[] {

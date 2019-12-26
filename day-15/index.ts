@@ -15,13 +15,27 @@ const main = async () => {
 
   const maze = new Maze(registry)
 
-  const route = maze.findOxygen()
+  maze.breadthFirstSearch()
 
-  const part1 = route!.length
+  const [oxygenPos, oxygenTile] = maze.findOxygen()
+  const pathToOxygen = maze.buildRouteToTile(oxygenTile)
+  const part1 = pathToOxygen.length
 
   console.log('[day-15] {part-1}', part1)
 
-  const part2 = 0
+  maze.breadthFirstSearch(pathToOxygen, oxygenPos, oxygenTile)
+
+  const furthestPointFromOxygen = Array.from(maze.map.values()).reduce(
+    (acc, tile) => {
+      const minutes = maze.buildRouteToTile(tile).length
+
+      return minutes > acc ? minutes : acc
+    },
+    0
+  )
+
+  // as oxygen is our starting point, we added part1 to every route to tile
+  const part2 = furthestPointFromOxygen - part1
 
   console.log('[day-15] {part-2}', part2)
 }
