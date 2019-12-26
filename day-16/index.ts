@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 
 import { phaseNTimes } from './fft'
+import { fastPhaserNTimes } from './fastFft'
 
 const main = async () => {
   const inputBuffer = await fs.readFile(path.join(__dirname, 'input.txt'))
@@ -16,7 +17,7 @@ const main = async () => {
 
   console.log('[day-16] {part-1}', part1)
 
-  const part2 = 0
+  const part2 = fastPhaserNTimes(Array(10000).fill(input).flat(), 100)
 
   console.log('[day-16] {part-2}', part2)
 }
