@@ -17,7 +17,12 @@ const main = async () => {
 
   console.log('[day-16] {part-1}', part1)
 
-  const part2 = fastPhaserNTimes(Array(10000).fill(input).flat(), 100)
+  const part2 = fastPhaserNTimes(
+    Array(10000)
+      .fill(input)
+      .flat(),
+    100
+  )
 
   console.log('[day-16] {part-2}', part2)
 }

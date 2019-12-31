@@ -17,7 +17,8 @@ const fastPhaser = (input: number[]) => {
 
   // if the offset is big enough, then the pattern is simply 1, 1, 1, 1, ...
   for (let i = result.length - 1; i >= 0; i -= 1) {
-    result[i] = (i === result.length - 1 ? result[i] : result[i + 1] + result[i]) % 10
+    result[i] =
+      (i === result.length - 1 ? result[i] : result[i + 1] + result[i]) % 10
   }
 
   return result
