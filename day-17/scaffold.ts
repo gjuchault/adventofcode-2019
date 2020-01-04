@@ -30,7 +30,7 @@ export class Scaffold {
     }
   }
 
-  findIntersections() {
+  walksOnScaffold() {
     let initialPos = [0, 0]
     let initialDirection = [0, 0]
 
@@ -49,8 +49,10 @@ export class Scaffold {
 
     const breadcrumb: string[] = []
     const intersections = new Set<string>()
+    const route: string[] = []
     let position = initialPos
     let direction = initialDirection
+    let directionCounter = 0
 
     while (1) {
       const posStr = `${position[0]},${position[1]}`
@@ -68,21 +70,29 @@ export class Scaffold {
 
       let nextDirection = direction
 
-      // console.log('trying', nextPosition, this.isScaffold(nextPosition[0], nextPosition[1]))
-
       if (!this.isScaffold(nextPosition[0], nextPosition[1])) {
         // if robot is in vertical direction
         if (direction[0] === 0) {
           if (this.isScaffold(position[0] + 1, position[1])) {
             // either go right
             nextPosition = [position[0] + 1, position[1]]
-
             nextDirection = [1, 0]
+
+            route.push(
+              String(directionCounter + 1),
+              direction[1] === 1 ? 'L' : 'R'
+            )
+            directionCounter = 0
           } else if (this.isScaffold(position[0] - 1, position[1])) {
             // or left
             nextPosition = [position[0] - 1, position[1]]
-
             nextDirection = [-1, 0]
+
+            route.push(
+              String(directionCounter + 1),
+              direction[1] === 1 ? 'R' : 'L'
+            )
+            directionCounter = 0
           } else {
             // no movement possible anymore -> done
             break
@@ -91,25 +101,46 @@ export class Scaffold {
           if (this.isScaffold(position[0], position[1] + 1)) {
             // either go down
             nextPosition = [position[0], position[1] + 1]
-
             nextDirection = [0, 1]
+
+            route.push(
+              String(directionCounter + 1),
+              direction[0] === 1 ? 'R' : 'L'
+            )
+            directionCounter = 0
           } else if (this.isScaffold(position[0], position[1] - 1)) {
             // or top
             nextPosition = [position[0], position[1] - 1]
-
             nextDirection = [0, -1]
+
+            route.push(
+              String(directionCounter + 1),
+              direction[0] === 1 ? 'L' : 'R'
+            )
+            directionCounter = 0
           } else {
             // no movement possible anymore -> done
+            directionCounter += 1
             break
           }
         }
+      } else {
+        // no rotation, keep the same letter
+        directionCounter += 1
       }
 
       position = nextPosition
       direction = nextDirection
     }
 
-    return Array.from(intersections).map(pos => pos.split(',').map(Number))
+    route.push(String(directionCounter))
+
+    return {
+      route: route.slice(1),
+      intersections: Array.from(intersections).map(pos =>
+        pos.split(',').map(Number)
+      )
+    }
   }
 
   isScaffold(x: number, y: number) {
